@@ -5,6 +5,8 @@ license = "MIT"
 repository = "https://github.com/alinacaraiman/alximo"
 version = { workspace =  true }
 edition = "2021"
+description = "Scientific computing in Rust"
+readme = "../README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
