@@ -1,0 +1,10 @@
+[workspace]
+members = ["alximo", "alximo/alximo-corr", "alximo/alximo-core"]
+
+[workspace.package]
+version = "0.1.0"
+
+[workspace.dependencies]
+anyhow = "1.0.69"
+ndarray = "0.15.6"
+
