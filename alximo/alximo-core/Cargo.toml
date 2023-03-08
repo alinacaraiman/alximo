@@ -1,10 +1,14 @@
 [package]
 name = "alximo-core"
-version = "0.1.0"
 edition = "2021"
+keywords = ["statistics"]
 license = "MIT"
+repository = "https://github.com/alinacaraiman/alximo"
+version = "0.1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+path = "src/lib.rs"
 
 [dependencies]
 anyhow = { workspace = true }
