@@ -1,15 +1,11 @@
 use anyhow::{ensure, Result};
-use maths::squared_sum;
-use ndarray::Array1;
+use maths::{corrcoef, cov, squared_sum};
+use ndarray::{Array1, Array2, Axis};
 use statrs::distribution::{Beta, ContinuousCDF};
 
 mod maths;
 
-pub fn pearsonr(
-    x: Array1<f64>,
-    y: Array1<f64>,
-    alternative: Option<&str>,
-) -> Result<(f64, f64)> {
+pub fn pearsonr(x: Array1<f64>, y: Array1<f64>, alternative: Option<&str>) -> Result<(f64, f64)> {
     ensure!(x.len() == x.len(), "x and y have different lenghts. To calculate the Pearson R coefficient, x and y should have the same length");
     let n = x.len() as f64;
 
@@ -46,12 +42,58 @@ fn pearson_significance(r: f64, n: f64, alternative: &str) -> f64 {
     }
 }
 
+pub fn corrcoef_1d(
+    x: Array1<f64>,
+    y: Option<Array1<f64>>,
+    bias: bool,
+    ddof: Option<usize>,
+    rowvar: bool,
+) -> Result<Array2<f64>> {
+    let c = cov_1d(x, y, rowvar, bias, ddof)?;
+    corrcoef(c)
+}
+
+pub fn corrcoef_2d(
+    x: Array2<f64>,
+    y: Option<Array2<f64>>,
+    bias: bool,
+    ddof: Option<usize>,
+    rowvar: bool,
+) -> Result<Array2<f64>> {
+    let c = cov_2d(x, y, rowvar, bias, ddof)?;
+    corrcoef(c)
+}
+
+pub fn cov_1d(
+    m: Array1<f64>,
+    y: Option<Array1<f64>>,
+    rowvar: bool,
+    bias: bool,
+    ddof: Option<usize>,
+) -> Result<Array2<f64>> {
+    let m = m.insert_axis(Axis(0));
+
+    let y = y.map(|y| y.insert_axis(Axis(0)));
+    cov(m, y, rowvar, bias, ddof)
+}
+
+pub fn cov_2d(
+    m: Array2<f64>,
+    y: Option<Array2<f64>>,
+    rowvar: bool,
+    bias: bool,
+    ddof: Option<usize>,
+) -> Result<Array2<f64>> {
+    cov(m, y, rowvar, bias, ddof)
+}
+
 #[cfg(test)]
 mod tests {
-    use ndarray::Array;
+    use ndarray::{Array, Array2};
+    use ndarray_rand::{rand_distr::Uniform, RandomExt};
     use statrs::assert_almost_eq;
 
-    use crate::pearsonr;
+    use crate::{corrcoef_2d, pearsonr};
 
     #[test]
     fn test_pearson_corr() {
@@ -62,5 +104,17 @@ mod tests {
         println!("Pearson correlation coefficient: {}, Probability {}", r, p);
         assert_almost_eq!(r, 1., 1e-14);
         assert_almost_eq!(p, 0., 1e-14);
+    }
+
+    #[test]
+    fn test_corrcoef() {
+        let x_arr = Array2::random((3, 3), Uniform::new(-40., 200.));
+        let r = corrcoef_2d(x_arr, None, false, None, true).unwrap();
+        println!("{:?}", r);
+
+        let x_arr = Array2::random((3, 3), Uniform::new(-40., 200.));
+        let y_arr = Array2::random((3, 3), Uniform::new(-40., 200.));
+        let r = corrcoef_2d(x_arr, Some(y_arr), false, None, true).unwrap();
+        println!("{:?}", r);
     }
 }
