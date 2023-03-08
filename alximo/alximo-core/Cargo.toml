@@ -5,6 +5,7 @@ keywords = ["statistics"]
 license = "MIT"
 repository = "https://github.com/alinacaraiman/alximo"
 version = "0.1.0"
+description = "Core for the alximo package"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
